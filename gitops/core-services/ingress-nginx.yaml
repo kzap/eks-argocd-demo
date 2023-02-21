@@ -1,0 +1,25 @@
+kind: ApplicationSet
+apiVersion: argoproj.io/v1alpha1
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+spec:
+  generators:
+  - clusters: {}
+  template:
+    metadata:
+      name: ingress-nginx
+      namespace: argocd
+    spec:
+      destination:
+        namespace: ingress-nginx
+        server: https://kubernetes.default.svc
+      project: core-services
+      source:
+        path: gitops/ingress-nginx
+        repoURL: https://github.com/kzap/eks-argocd-demo.git
+      syncPolicy:
+        automated:
+          prune: true
+        syncOptions: # Sync options which modifies sync behavior
+        - CreateNamespace=true # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.

@@ -1,0 +1,27 @@
+kind: ApplicationSet
+apiVersion: argoproj.io/v1alpha1
+metadata:
+  name: emojivoto
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            env: demo
+  template:
+    metadata:
+      name: emojivoto
+      namespace: argocd
+    spec:
+      destination:
+        namespace: emojivoto
+        server: https://kubernetes.default.svc
+      project: default
+      source:
+        path: gitops/emojivoto
+        repoURL: https://github.com/kzap/eks-argocd-demo.git
+      syncPolicy:
+        automated: {}
+        syncOptions: # Sync options which modifies sync behavior
+          - CreateNamespace=true # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.
