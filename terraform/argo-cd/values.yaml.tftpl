@@ -1,0 +1,82 @@
+# Ref: https://github.com/argoproj/argo-helm/blob/argo-cd-4.10.9/charts/argo-cd/values.yaml
+argo-cd:
+#   global:
+#     image:
+#       # -- Overrides the global ArgoCD image tag whose default is the chart appVersion
+#       tag: *argocd_version
+
+  server:
+    logFormat: json
+    
+    # -- Deploy ArgoCD Applications within this helm release
+    # @default -- `[]` (See [values.yaml])
+    ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/
+    additionalApplications:
+      - name: bootstrap-applications
+        namespace: argocd
+        project: argocd
+        additionalAnnotations:
+          # Makes ArgoCD Sync only compare manifests in the paths given below. Can be relative or absolute paths.
+          # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#webhook-and-manifest-paths-annotation
+          argocd.argoproj.io/manifest-generate-paths: .
+        source:
+          repoURL: https://github.com/kzap/eks-argocd-demo.git
+          targetRevision: HEAD
+          path: gitops/applications
+          directory:
+            recurse: true
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: argocd
+        syncPolicy:
+          automated:
+            prune: false
+            selfHeal: false
+        info:
+          - name: url
+            value: https://github.com/kzap/eks-argocd-demo/tree/main/gitops
+      - name: bootstrap-core-services
+        namespace: argocd
+        project: argocd
+        additionalAnnotations:
+          # Makes ArgoCD Sync only compare manifests in the paths given below. Can be relative or absolute paths.
+          # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#webhook-and-manifest-paths-annotation
+          argocd.argoproj.io/manifest-generate-paths: .
+        source:
+          repoURL: https://github.com/kzap/eks-argocd-demo.git
+          targetRevision: HEAD
+          path: gitops/core-services
+          directory:
+            recurse: true
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: argocd
+        syncPolicy:
+          automated:
+            prune: false
+            selfHeal: false
+        info:
+          - name: url
+            value: https://github.com/kzap/eks-argocd-demo/tree/main/gitops
+
+  controller:
+    logFormat: json
+
+  configs:
+    # -- Provide one or multiple [external cluster credentials]
+    # @default -- `[]` (See [values.yaml])
+    ## Ref:
+    ## - https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#clusters
+    ## - https://argo-cd.readthedocs.io/en/stable/operator-manual/security/#external-cluster-credentials
+    clusterCredentials:
+      - name: in-cluster
+        server: https://kubernetes.default.svc
+        labels:
+          env: ${env}
+        annotations: {}
+        # for in-cluster credential the config values can be empty
+        config:
+          bearerToken: ""
+          tlsClientConfig:
+            insecure: false
+            caData: ""
