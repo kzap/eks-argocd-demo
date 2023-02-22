@@ -8,6 +8,33 @@ argo-cd:
   server:
     logFormat: json
     
+    # -- Deploy ArgoCD Projects within this helm release
+    # @default -- `[]` (See [values.yaml])
+    ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/
+    additionalProjects:
+      - name: argocd
+        namespace: argocd
+        description: Used to setup ArgoCD
+        sourceRepos:
+          - https://github.com/kzap/eks-argocd-demo.git
+        destinations:
+          - namespace: argocd
+            server: https://kubernetes.default.svc
+        clusterResourceWhitelist:
+          - group: "*"
+            kind: "*"
+      - name: core-services
+        namespace: argocd
+        description: Used for Core Services
+        sourceRepos:
+          - https://github.com/kzap/eks-argocd-demo.git
+        destinations:
+          - namespace: '*'
+            server: https://kubernetes.default.svc
+        clusterResourceWhitelist:
+          - group: "*"
+            kind: "*"
+
     # -- Deploy ArgoCD Applications within this helm release
     # @default -- `[]` (See [values.yaml])
     ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/

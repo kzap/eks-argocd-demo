@@ -30,7 +30,7 @@ module "eks_blueprints_kubernetes_addons" {
 
   argocd_manage_add_ons = false # Indicates that ArgoCD is responsible for managing/deploying add-ons
   
-  # EKS Addons
+  # EKS Addons via Helm instead of EKS module
   enable_amazon_eks_vpc_cni            = true
   enable_amazon_eks_coredns            = true
   enable_amazon_eks_kube_proxy         = true
